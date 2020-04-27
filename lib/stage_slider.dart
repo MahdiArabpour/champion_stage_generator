@@ -1,5 +1,7 @@
-import 'package:champion_stage_generator/stage_height_bloc.dart';
+import 'package:champion_stage_generator/models/stage.dart';
+import 'package:champion_stage_generator/stage_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class StageSlider extends StatefulWidget {
   final index;
@@ -11,7 +13,7 @@ class StageSlider extends StatefulWidget {
 }
 
 class _StageSliderState extends State<StageSlider> {
-  final _bloc = StageHeightBloc();
+  final _bloc = StageBloc();
 
   int _index;
 
@@ -20,10 +22,10 @@ class _StageSliderState extends State<StageSlider> {
   double _previousPosition = 0.0;
   double _singleStageWidth;
   double _imagePlaceHolderPadding;
-  double _defaultHeight;
+  Stage _defaultStage;
   double _maxHeight;
   double _minHeight;
-  double _stageHeight;
+  Stage _stage;
 
   MediaQueryData _mediaQuery;
   Size _mediaQuerySize;
@@ -37,16 +39,17 @@ class _StageSliderState extends State<StageSlider> {
     _singleStageWidth = _mediaQuerySize.width / 3 - 20;
     _imagePlaceHolderPadding = _singleStageWidth * 0.1;
     _index = widget.index;
-    _defaultHeight = 0.0;
     _didRebuild = true;
     _maxHeight =
         _mediaQuerySize.height - _mediaQuery.padding.top - _singleStageWidth;
     _minHeight = _mediaQuerySize.height * 0.1;
     if (_index == 0)
-      _defaultHeight = _maxHeight * 0.60;
+      _defaultStage = Stage(
+        height: _maxHeight * 0.60,
+      );
     else if (_index == 1)
-      _defaultHeight = _maxHeight * 0.75;
-    else if (_index == 2) _defaultHeight = _maxHeight * 0.45;
+      _defaultStage = Stage(height: _maxHeight * 0.75);
+    else if (_index == 2) _defaultStage = Stage(height: _maxHeight * 0.45);
     return GestureDetector(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -64,24 +67,22 @@ class _StageSliderState extends State<StageSlider> {
             color: Colors.white30,
             width: _singleStageWidth,
             child: StreamBuilder(
-                stream: _bloc.heightStream,
+                stream: _bloc.stageStream,
                 builder: (context, snapshot) {
                   if (snapshot.data == null)
-                    _stageHeight = _defaultHeight;
-                  else if (snapshot.data >= _maxHeight)
-                    _stageHeight = _maxHeight;
+                    _stage = _defaultStage;
+                  else if (snapshot.data.height >= _maxHeight)
+                    _stage =
+                        Stage(height: _maxHeight, color: snapshot.data.color);
                   else
-                    _stageHeight = snapshot.data;
+                    _stage = snapshot.data;
 
-                  if (_didRebuild) {
-                    _previousPosition = _stageHeight;
-                    _bloc.heightSink.add(_stageHeight);
-                  }
+                  if (_didRebuild) _previousPosition = _stage.height;
 
                   _didRebuild = false;
                   return Container(
-                    color: Colors.blue[900],
-                    height: _stageHeight,
+                    color: _stage.color,
+                    height: _stage.height,
                   );
                 }),
           ),
@@ -90,6 +91,7 @@ class _StageSliderState extends State<StageSlider> {
       onVerticalDragStart: _onDragStart,
       onVerticalDragUpdate: _onDragUpdate,
       onVerticalDragEnd: _onDragEnd,
+      onDoubleTap: _onDoubleTap,
     );
   }
 
@@ -105,7 +107,7 @@ class _StageSliderState extends State<StageSlider> {
     if (_currentHeight >= _maxHeight)
       _currentHeight = _maxHeight;
     else if (_currentHeight <= _minHeight) _currentHeight = _minHeight;
-    _bloc.heightSink.add(_currentHeight);
+    _bloc.stageSink.add(Stage(height: _currentHeight, color: currentColor));
   }
 
   void _onDragEnd(DragEndDetails details) => _previousPosition = _currentHeight;
@@ -114,5 +116,38 @@ class _StageSliderState extends State<StageSlider> {
   void dispose() {
     _bloc.close();
     super.dispose();
+  }
+
+  Color currentColor = Colors.blue;
+
+  void changeColor(Color color) {
+    currentColor = color;
+    _stage.color = currentColor;
+    _bloc.stageSink.add(_stage);
+  }
+
+  void _onDoubleTap() {
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        title: const Text('Pick a color!'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: currentColor,
+            onColorChanged: changeColor,
+            showLabel: true,
+            pickerAreaHeightPercent: 0.8,
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: const Text('Got it'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
