@@ -11,15 +11,9 @@ class MyHomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              StageSlider(
-                height: 175,
-              ),
-              StageSlider(
-                height: 250,
-              ),
-              StageSlider(
-                height: 100,
-              ),
+              StageSlider(index: 0,),
+              StageSlider(index: 1,),
+              StageSlider(index: 2,),
             ],
           ),
         ),
