@@ -11,6 +11,10 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^0.1.2
   flutter_colorpicker: any
+  dotted_border: any
+  image_picker: any
+  image_cropper: any
+  permission_handler: any
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,8 @@
 import 'package:champion_stage_generator/models/stage.dart';
 import 'package:champion_stage_generator/blocs/stage_bloc.dart';
+import 'package:champion_stage_generator/widgets/image_picker.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -55,16 +58,9 @@ class _StageSliderState extends State<StageSlider> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          GestureDetector(
-            child: Container(
-              padding: EdgeInsets.all(_imagePlaceHolderPadding),
-              height: _singleStageWidth,
-              width: _singleStageWidth,
-              child: Container(
-                color: Colors.amber,
-              ),
-            ),
-            onTap: _pickImage,
+          MyImagePicker(
+            width: _singleStageWidth,
+            padding: _imagePlaceHolderPadding,
           ),
           Container(
             width: _singleStageWidth,
@@ -158,26 +154,4 @@ class _StageSliderState extends State<StageSlider> {
     );
   }
 
-  void _pickImage() {
-    showDialog(
-      context: context,
-      child: AlertDialog(
-        titlePadding: EdgeInsets.all(8.0),
-        title: Column(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: const Text('Import from camera'),
-              onTap: (){},
-            ),
-            ListTile(
-              leading: Icon(Icons.image),
-              title: const Text('Import from gallery'),
-              onTap: (){},
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
