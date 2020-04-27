@@ -2,7 +2,6 @@ import 'package:champion_stage_generator/stage_height_bloc.dart';
 import 'package:flutter/material.dart';
 
 class StageSlider extends StatefulWidget {
-
   final index;
 
   const StageSlider({Key key, this.index}) : super(key: key);
@@ -12,29 +11,81 @@ class StageSlider extends StatefulWidget {
 }
 
 class _StageSliderState extends State<StageSlider> {
-  final bloc = StageHeightBloc();
+  final _bloc = StageHeightBloc();
+
+  int _index;
+
+  double _startPosition = 0.0;
+  double _currentHeight = 0.0;
+  double _previousPosition = 0.0;
+  double _singleStageWidth;
+  double _imagePlaceHolderPadding;
+  double _defaultHeight;
+  double _maxHeight;
+  double _minHeight;
+  double _stageHeight;
+
+  MediaQueryData _mediaQuery;
+  Size _mediaQuerySize;
+
+  bool _didRebuild;
 
   @override
   Widget build(BuildContext context) {
-    final singleStageWidth = MediaQuery.of(context).size.width / 3 - 20;
-    final index = widget.index;
-    var height = 0.0;
-    if (index == 0) height = MediaQuery.of(context).size.height / 2.5;
-    else if (index == 1) height = MediaQuery.of(context).size.height / 2;
-    else if (index == 2) height = MediaQuery.of(context).size.height / 3.25;
+    _mediaQuery = MediaQuery.of(context);
+    _mediaQuerySize = _mediaQuery.size;
+    _singleStageWidth = _mediaQuerySize.width / 3 - 20;
+    _imagePlaceHolderPadding = _singleStageWidth * 0.1;
+    _index = widget.index;
+    _defaultHeight = 0.0;
+    _didRebuild = true;
+    _maxHeight =
+        _mediaQuerySize.height - _mediaQuery.padding.top - _singleStageWidth;
+    _minHeight = _mediaQuerySize.height * 0.1;
+    if (_index == 0)
+      _defaultHeight = _maxHeight * 0.60;
+    else if (_index == 1)
+      _defaultHeight = _maxHeight * 0.75;
+    else if (_index == 2) _defaultHeight = _maxHeight * 0.45;
     return GestureDetector(
-      child: Container(
-        color: Colors.white30,
-        width: singleStageWidth,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: StreamBuilder(
-              stream: bloc.heightStream,
-              builder: (context, snapshot) => Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(_imagePlaceHolderPadding),
+            height: _singleStageWidth,
+            width: _singleStageWidth,
+            child: Container(
+              color: Colors.amber,
+            ),
+          ),
+          Container(
+            color: Colors.white30,
+            width: _singleStageWidth,
+            child: StreamBuilder(
+                stream: _bloc.heightStream,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null)
+                    _stageHeight = _defaultHeight;
+                  else if (snapshot.data >= _maxHeight)
+                    _stageHeight = _maxHeight;
+                  else
+                    _stageHeight = snapshot.data;
+
+                  if (_didRebuild) {
+                    _previousPosition = _stageHeight;
+                    _bloc.heightSink.add(_stageHeight);
+                  }
+
+                  _didRebuild = false;
+                  return Container(
                     color: Colors.blue[900],
-                    height: snapshot.data ?? height,
-                  )),
-        ),
+                    height: _stageHeight,
+                  );
+                }),
+          ),
+        ],
       ),
       onVerticalDragStart: _onDragStart,
       onVerticalDragUpdate: _onDragUpdate,
@@ -42,27 +93,26 @@ class _StageSliderState extends State<StageSlider> {
     );
   }
 
-  var startPosition = 0.0;
-  var currentHeight = 0.0;
-  var previousPosition = 150.0;
-
   void _onDragStart(DragStartDetails startDetails) {
     final localPosition = startDetails.localPosition;
-    startPosition = MediaQuery.of(context).size.height - localPosition.dy;
+    _startPosition = _mediaQuerySize.height - localPosition.dy;
   }
 
   void _onDragUpdate(DragUpdateDetails updateDetails) {
     final localPosition = updateDetails.localPosition;
-    final height = MediaQuery.of(context).size.height - localPosition.dy;
-    currentHeight = (previousPosition - startPosition) + height;
-    bloc.heightSink.add(currentHeight);
+    final height = _mediaQuerySize.height - localPosition.dy;
+    _currentHeight = (_previousPosition - _startPosition) + height;
+    if (_currentHeight >= _maxHeight)
+      _currentHeight = _maxHeight;
+    else if (_currentHeight <= _minHeight) _currentHeight = _minHeight;
+    _bloc.heightSink.add(_currentHeight);
   }
 
-  void _onDragEnd(DragEndDetails details) => previousPosition = currentHeight;
+  void _onDragEnd(DragEndDetails details) => _previousPosition = _currentHeight;
 
   @override
   void dispose() {
-    bloc.close();
+    _bloc.close();
     super.dispose();
   }
 }

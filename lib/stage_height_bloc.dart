@@ -1,14 +1,13 @@
 import 'dart:async';
 
-class StageHeightBloc{
-
+class StageHeightBloc {
   final heightStateController = StreamController<double>();
 
   StreamSink<double> get heightSink => heightStateController.sink;
 
   Stream<double> get heightStream => heightStateController.stream;
 
-  void close(){
+  void close() {
     heightStateController.close();
   }
 }

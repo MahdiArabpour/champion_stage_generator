@@ -11,9 +11,15 @@ class MyHomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              StageSlider(index: 0,),
-              StageSlider(index: 1,),
-              StageSlider(index: 2,),
+              StageSlider(
+                index: 0,
+              ),
+              StageSlider(
+                index: 1,
+              ),
+              StageSlider(
+                index: 2,
+              ),
             ],
           ),
         ),
