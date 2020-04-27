@@ -1,5 +1,5 @@
 import 'package:champion_stage_generator/models/stage.dart';
-import 'package:champion_stage_generator/stage_bloc.dart';
+import 'package:champion_stage_generator/blocs/stage_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -42,7 +42,7 @@ class _StageSliderState extends State<StageSlider> {
     _didRebuild = true;
     _maxHeight =
         _mediaQuerySize.height - _mediaQuery.padding.top - _singleStageWidth;
-    _minHeight = _mediaQuerySize.height * 0.1;
+    _minHeight = _mediaQuerySize.height * 0.05;
     if (_index == 0)
       _defaultStage = Stage(
         height: _maxHeight * 0.60,
@@ -55,16 +55,18 @@ class _StageSliderState extends State<StageSlider> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(_imagePlaceHolderPadding),
-            height: _singleStageWidth,
-            width: _singleStageWidth,
+          GestureDetector(
             child: Container(
-              color: Colors.amber,
+              padding: EdgeInsets.all(_imagePlaceHolderPadding),
+              height: _singleStageWidth,
+              width: _singleStageWidth,
+              child: Container(
+                color: Colors.amber,
+              ),
             ),
+            onTap: _pickImage,
           ),
           Container(
-            color: Colors.white30,
             width: _singleStageWidth,
             child: StreamBuilder(
                 stream: _bloc.stageStream,
@@ -81,7 +83,12 @@ class _StageSliderState extends State<StageSlider> {
 
                   _didRebuild = false;
                   return Container(
-                    color: _stage.color,
+                    decoration: BoxDecoration(
+                        color: _stage.color,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(5.0),
+                          topRight: Radius.circular(5.0),
+                        )),
                     height: _stage.height,
                   );
                 }),
@@ -147,6 +154,29 @@ class _StageSliderState extends State<StageSlider> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _pickImage() {
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        titlePadding: EdgeInsets.all(8.0),
+        title: Column(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.camera_alt),
+              title: const Text('Import from camera'),
+              onTap: (){},
+            ),
+            ListTile(
+              leading: Icon(Icons.image),
+              title: const Text('Import from gallery'),
+              onTap: (){},
+            ),
+          ],
+        ),
       ),
     );
   }
