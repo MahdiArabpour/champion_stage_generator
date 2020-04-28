@@ -16,6 +16,7 @@ dependencies:
   image_cropper: any
   permission_handler: any
   fluttertoast: any
+  save_in_gallery: any
 
 dev_dependencies:
   flutter_test:

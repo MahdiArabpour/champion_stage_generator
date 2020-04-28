@@ -1,7 +1,7 @@
-import 'package:champion_stage_generator/blocs/description_text_bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../models/description_text_data.dart';
+import '../blocs/description_text_bloc.dart';
 
 class DescriptionText extends StatefulWidget {
   final DescriptionTextBloc bloc;

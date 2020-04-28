@@ -10,8 +10,8 @@ class MyApp extends StatelessWidget {
         title: 'Champion stage generator',
         home: MyHomePage(),
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-          accentColor: Colors.green,
-        ),
+            primarySwatch: Colors.blue,
+            accentColor: Colors.green,
+            backgroundColor: Colors.white),
       );
 }

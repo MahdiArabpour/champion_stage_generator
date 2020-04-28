@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:save_in_gallery/save_in_gallery.dart';
+
+import './widgets/description_text_input.dart';
 import './blocs/description_text_bloc.dart';
-import './models/description_text_data.dart';
 import './utils/permissions.dart';
 import './utils/toast.dart';
 import './widgets/description_text.dart';
@@ -15,33 +20,41 @@ class MyHomePage extends StatelessWidget {
     bloc: _bloc,
   );
 
+  GlobalKey _globalKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) => Scaffold(
         resizeToAvoidBottomInset: false,
         resizeToAvoidBottomPadding: false,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Stack(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: RepaintBoundary(
+          key: _globalKey,
+          child: Container(
+            color: Theme.of(context).backgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Stack(
                 children: <Widget>[
-                  StageSlider(
-                    index: 0,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      StageSlider(
+                        index: 0,
+                      ),
+                      StageSlider(
+                        index: 1,
+                      ),
+                      StageSlider(
+                        index: 2,
+                      ),
+                    ],
                   ),
-                  StageSlider(
-                    index: 1,
-                  ),
-                  StageSlider(
-                    index: 2,
+                  DescriptionText(
+                    bloc: _bloc,
                   ),
                 ],
               ),
-              DescriptionText(
-                bloc: _bloc,
-              ),
-            ],
+            ),
           ),
         ),
         floatingActionButton: Column(
@@ -55,11 +68,7 @@ class MyHomePage extends StatelessWidget {
             SizedBox(
               height: 10.0,
             ),
-            FloatingActionButton(
-              child: Icon(Icons.save),
-              backgroundColor: Theme.of(context).accentColor,
-              onPressed: _onSaveFinalImage,
-            )
+            _saveFloatingActionButton(context),
           ],
         ),
       );
@@ -81,40 +90,54 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
+  Future<Uint8List> _capturePng() async {
+    RenderRepaintBoundary boundary =
+        _globalKey.currentContext.findRenderObject();
+
+    if (boundary.debugNeedsPaint) {
+      print("Waiting for boundary to be painted.");
+      await Future.delayed(const Duration(milliseconds: 20));
+      return _capturePng();
+    }
+
+    var image = await boundary.toImage();
+    var byteData = await image.toByteData(format: ImageByteFormat.png);
+    return byteData.buffer.asUint8List();
+  }
+
+  Future<void> _saveImage(bytes) async {
+    _startLoading();
+    ImageSaver _imageSaver = ImageSaver();
+    List<Uint8List> bytesList = [bytes];
+    final res = await _imageSaver.saveImages(imageBytes: bytesList);
+    print(res);
+    _displayResult(res);
+  }
+
+  Widget _saveFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      child: Icon(Icons.save),
+      backgroundColor: Theme.of(context).accentColor,
+      onPressed: _onSaveFinalImage,
+    );
+  }
+
   void _onSaveFinalImage() async {
     if (await allowedStoragePermission()) {
-      // TODO
+      _saveImage(await _capturePng());
     } else
       Toast.show('Access denied');
   }
-}
 
-class MyTextField extends StatefulWidget {
-  final DescriptionTextBloc bloc;
+  void _startLoading() {
+    Toast.show('Saving..');
+  }
 
-  const MyTextField({Key key, @required this.bloc}) : super(key: key);
-
-  @override
-  _MyTextFieldState createState() => _MyTextFieldState();
-}
-
-String _text = '';
-
-class _MyTextFieldState extends State<MyTextField> {
-  @override
-  Widget build(BuildContext context) {
-    print(_text);
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Description',
-      ),
-      controller: TextEditingController()..text = _text,
-      textAlign: TextAlign.end,
-      onChanged: (String value) {
-        _text = value;
-        final textData = DescriptionTextData(text: value);
-        widget.bloc.descriptionTextSink.add(textData);
-      },
-    );
+  void _displayResult(bool success) {
+    if (success) {
+      Toast.show('Saved');
+    } else {
+      Toast.show('There was an error saving image!');
+    }
   }
 }

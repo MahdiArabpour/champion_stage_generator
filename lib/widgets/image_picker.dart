@@ -25,7 +25,7 @@ class _MyImagePickerState extends State<MyImagePicker> {
   @override
   Widget build(BuildContext context) {
     return _inProcess
-        ? _buildContainerBorder(child: CircularProgressIndicator())
+        ? _buildContainerBorder(child: Center(child: CircularProgressIndicator()))
         : GestureDetector(
             child: Container(
                 padding: EdgeInsets.all(widget.padding),
@@ -82,10 +82,10 @@ class _MyImagePickerState extends State<MyImagePicker> {
               title: const Text('Import from camera'),
               onTap: () async {
                 if (await allowedCameraPermission()) {
-                  if (navigator.canPop()) navigator.pop();
                   _pickImage(source: ImageSource.camera);
                 } else
                   Toast.show('Access denied');
+                if (navigator.canPop()) navigator.pop();
               },
             ),
             ListTile(
@@ -93,10 +93,10 @@ class _MyImagePickerState extends State<MyImagePicker> {
               title: const Text('Import from gallery'),
               onTap: () async {
                 if (await allowedStoragePermission()) {
-                  if (navigator.canPop()) navigator.pop();
                   _pickImage(source: ImageSource.gallery);
                 } else
                   Toast.show('Access denied');
+                if (navigator.canPop()) navigator.pop();
               },
             ),
           ],
