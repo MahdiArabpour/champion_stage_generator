@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../utils/permissions.dart';
+import '../utils/toast.dart';
+
 class MyImagePicker extends StatefulWidget {
   final double width;
   final double padding;
@@ -54,20 +57,17 @@ class _MyImagePickerState extends State<MyImagePicker> {
   }
 
   Widget _buildContainerBorder({Widget child}) => Container(
-    height: widget.width,
-    width: widget.width,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.all(
-        Radius.circular(5.0),
-      ),
-      border: Border.all(
-          width: 2,
-          color: Colors.blueGrey,
-          style: BorderStyle.solid),
-    ),
-    child: child,
-  );
-
+        height: widget.width,
+        width: widget.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(5.0),
+          ),
+          border: Border.all(
+              width: 2, color: Colors.blueGrey, style: BorderStyle.solid),
+        ),
+        child: child,
+      );
 
   void _pickImageDialog() {
     final navigator = Navigator.of(context);
@@ -80,17 +80,23 @@ class _MyImagePickerState extends State<MyImagePicker> {
             ListTile(
               leading: Icon(Icons.camera_alt),
               title: const Text('Import from camera'),
-              onTap: () {
-                if (navigator.canPop()) navigator.pop();
-                _pickImage(source: ImageSource.camera);
+              onTap: () async {
+                if (await allowedCameraPermission()) {
+                  if (navigator.canPop()) navigator.pop();
+                  _pickImage(source: ImageSource.camera);
+                } else
+                  Toast.show('Access denied');
               },
             ),
             ListTile(
               leading: Icon(Icons.image),
               title: const Text('Import from gallery'),
-              onTap: () {
-                if (navigator.canPop()) navigator.pop();
-                _pickImage(source: ImageSource.gallery);
+              onTap: () async {
+                if (await allowedStoragePermission()) {
+                  if (navigator.canPop()) navigator.pop();
+                  _pickImage(source: ImageSource.gallery);
+                } else
+                  Toast.show('Access denied');
               },
             ),
           ],

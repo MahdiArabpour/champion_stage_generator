@@ -1,10 +1,9 @@
-import 'package:champion_stage_generator/models/stage.dart';
-import 'package:champion_stage_generator/blocs/stage_bloc.dart';
-import 'package:champion_stage_generator/widgets/image_picker.dart';
-import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
+import '../models/stage.dart';
+import '../blocs/stage_bloc.dart';
+import '../widgets/image_picker.dart';
 
 class StageSlider extends StatefulWidget {
   final index;
@@ -153,5 +152,4 @@ class _StageSliderState extends State<StageSlider> {
       ),
     );
   }
-
 }

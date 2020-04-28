@@ -1,14 +1,19 @@
-import 'package:champion_stage_generator/blocs/description_text_bloc.dart';
-import 'package:champion_stage_generator/models/description_text_data.dart';
-import 'package:champion_stage_generator/widgets/description_text.dart';
-import 'package:champion_stage_generator/widgets/stage_slider.dart';
 import 'package:flutter/material.dart';
+
+import './blocs/description_text_bloc.dart';
+import './models/description_text_data.dart';
+import './utils/permissions.dart';
+import './utils/toast.dart';
+import './widgets/description_text.dart';
+import './widgets/stage_slider.dart';
 
 // ignore: must_be_immutable
 class MyHomePage extends StatelessWidget {
   static DescriptionTextBloc _bloc = DescriptionTextBloc();
 
-  Widget textFormField = MyTextField(bloc: _bloc,);
+  Widget textFormField = MyTextField(
+    bloc: _bloc,
+  );
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -53,7 +58,7 @@ class MyHomePage extends StatelessWidget {
             FloatingActionButton(
               child: Icon(Icons.save),
               backgroundColor: Theme.of(context).accentColor,
-              onPressed: () {},
+              onPressed: _onSaveFinalImage,
             )
           ],
         ),
@@ -75,6 +80,13 @@ class MyHomePage extends StatelessWidget {
       ),
     );
   }
+
+  void _onSaveFinalImage() async {
+    if (await allowedStoragePermission()) {
+      // TODO
+    } else
+      Toast.show('Access denied');
+  }
 }
 
 class MyTextField extends StatefulWidget {
@@ -89,7 +101,6 @@ class MyTextField extends StatefulWidget {
 String _text = '';
 
 class _MyTextFieldState extends State<MyTextField> {
-
   @override
   Widget build(BuildContext context) {
     print(_text);
@@ -99,17 +110,11 @@ class _MyTextFieldState extends State<MyTextField> {
       ),
       controller: TextEditingController()..text = _text,
       textAlign: TextAlign.end,
-      onChanged: (String value){
+      onChanged: (String value) {
         _text = value;
         final textData = DescriptionTextData(text: value);
         widget.bloc.descriptionTextSink.add(textData);
       },
     );
-  }
-
-  @override
-  void didUpdateWidget(MyTextField oldWidget) {
-
-    super.didUpdateWidget(oldWidget);
   }
 }

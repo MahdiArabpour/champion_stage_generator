@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:champion_stage_generator/models/stage.dart';
+import '../models/stage.dart';
 
 class StageBloc {
   final stageStateController = StreamController<Stage>();

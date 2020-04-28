@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 
-class Stage{
+class Stage {
   double height;
   Color color;
 

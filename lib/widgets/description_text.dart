@@ -1,12 +1,12 @@
 import 'package:champion_stage_generator/blocs/description_text_bloc.dart';
 import 'package:flutter/material.dart';
+
 import '../models/description_text_data.dart';
 
 class DescriptionText extends StatefulWidget {
   final DescriptionTextBloc bloc;
 
-  const DescriptionText({Key key,@required this.bloc})
-      : super(key: key);
+  const DescriptionText({Key key, @required this.bloc}) : super(key: key);
 
   @override
   _DescriptionTextState createState() => _DescriptionTextState();
@@ -101,7 +101,8 @@ class _DescriptionTextState extends State<DescriptionText> {
     if (left >= maxLeft)
       left = maxLeft;
     else if (left <= minLeft) left = minLeft;
-    _bloc.descriptionTextSink.add(DescriptionTextData(left: left, top: top, text: _text));
+    _bloc.descriptionTextSink
+        .add(DescriptionTextData(left: left, top: top, text: _text));
   }
 
   Size _textSize(String text, TextStyle style) {

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-class DescriptionTextData{
+class DescriptionTextData {
   String text;
   double top;
   double left;
